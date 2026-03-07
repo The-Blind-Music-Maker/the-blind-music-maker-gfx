@@ -273,11 +273,27 @@ fn rank_u32(score_rank: f32) -> u32 {
     return min(u32(score_rank + 0.5), 3u);
 }
 
+fn srgb_channel_to_linear(c: f32) -> f32 {
+    if (c <= 0.04045) {
+        return c / 12.92;
+    }
+    return pow((c + 0.055) / 1.055, 2.4);
+}
+
+fn srgb8_to_linear(r: f32, g: f32, b: f32) -> vec3<f32> {
+    let srgb = vec3<f32>(r, g, b) / 255.0;
+    return vec3<f32>(
+        srgb_channel_to_linear(srgb.r),
+        srgb_channel_to_linear(srgb.g),
+        srgb_channel_to_linear(srgb.b)
+    );
+}
+
 fn rank_color(rank: u32) -> vec3<f32> {
-    if (rank == 3u) { return vec3<f32>(0.2, 1.0, 0.2); }  // green
-    if (rank == 2u) { return vec3<f32>(1.0, 1.0, 0.2); }  // yellow
-    if (rank == 1u) { return vec3<f32>(1.0, 0.55, 0.1); } // orange
-    return vec3<f32>(1.0, 0.2, 0.2);                      // red
+    if (rank == 0u) { return srgb8_to_linear(231.0, 83.0, 66.0); }   // #E75342
+    if (rank == 1u) { return srgb8_to_linear(233.0, 84.0, 66.0); }   // #E95442
+    if (rank == 2u) { return srgb8_to_linear(253.0, 195.0, 76.0); }  // #FDC34C
+    return srgb8_to_linear(72.0, 184.0, 101.0);                      // #48B865
 }
 
 @fragment
